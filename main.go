@@ -63,7 +63,8 @@ func main() {
 
 	err = out.WriteShort(ccMessage, localControlCC, localControlVal)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Error sending message to MicroBrute:", err)
+		os.Exit(1)
 	}
 
 }
