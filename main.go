@@ -7,23 +7,33 @@ import (
 	"github.com/rakyll/portmidi"
 )
 
+const (
+	ccMessage      = 0xB0 // Table 2: Chan 1 Control/Mode Change in http://www.midi.org/techspecs/midimessages.php
+	localControlCC = 0x7A // Table 3: Local Control On/Off (supported by MicroBrute)
+	onMessage      = 127
+	offMessage     = 0
+)
+
 func main() {
 
-	var val int64
-	var selectedDeviceId portmidi.DeviceId = -1
+	var (
+		localControlVal  int64
+		selectedDeviceId portmidi.DeviceId = -1
+	)
 
-	if len(os.Args) < 2 {
-		fmt.Println("must provide on or off")
-		os.Exit(0)
+	if len(os.Args) != 2 {
+		fmt.Println("No argument provided")
+		os.Exit(1)
 	}
 
 	switch os.Args[1] {
 	case "on":
-		val = 127
+		localControlVal = onMessage
 	case "off":
-		val = 0
+		localControlVal = offMessage
 	default:
-		val = 127
+		fmt.Println("Argument must be 'on' or 'off'")
+		os.Exit(1)
 	}
 
 	portmidi.Initialize()
@@ -35,34 +45,23 @@ func main() {
 		info := portmidi.GetDeviceInfo(id)
 		if info.Name == "MicroBrute" && info.IsOutputAvailable {
 			selectedDeviceId = id
-			fmt.Println("Found Microbrute output at device id", selectedDeviceId)
+			fmt.Println("Found MicroBrute output port at device id", selectedDeviceId)
+			break // Only apply command to first MicroBrute found
 		}
 	}
 
 	if selectedDeviceId == -1 {
-		fmt.Println("Microbrute not found")
-		os.Exit(0)
+		fmt.Println("MicroBrute not found")
+		os.Exit(1)
 	}
 
 	out, err := portmidi.NewOutputStream(selectedDeviceId, 1024, 0)
 	if err != nil {
-		// fmt.Println()
-		fmt.Println("Error opening device: ", err)
-		os.Exit(0)
+		fmt.Println("Error opening MicroBrute output port:", err)
+		os.Exit(1)
 	}
 
-	// 0x80     Note Off
-	// 0x90     Note On
-	// 0xA0     Aftertouch
-	// 0xB0     Continuous controller
-	// 0xC0     Patch change
-	// 0xD0     Channel Pressure
-	// 0xE0     Pitch bend
-	// 0xF0     (non-musical commands)
-
-	// CC 122 is Local ON/OFF according to MicroBurte Connection Manual
-	// https://dl.dropboxusercontent.com/u/976344/MICROBRUTE_Connection-Manual_v1.0.pdf
-	err = out.WriteShort(0xB0, 122, val)
+	err = out.WriteShort(ccMessage, localControlCC, localControlVal)
 	if err != nil {
 		fmt.Println(err)
 	}
