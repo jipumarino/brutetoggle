@@ -1,3 +1,7 @@
+// Brutetoggle is a command line utility for switching
+// MIDI Local Control on or off on a MicroBrute synthesizer
+// Usage:
+// microbrute [on|off]
 package main
 
 import (
