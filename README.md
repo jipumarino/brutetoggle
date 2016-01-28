@@ -8,4 +8,4 @@ Installation:
 
 Usage:
 
-`microbrute [on|off]`
+`brutetoggle [on|off]`
