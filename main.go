@@ -12,9 +12,9 @@ import (
 )
 
 const (
-	ccMessage             = 0xB0 // Table 2: Chan 1 Control/Mode Change in http://www.midi.org/techspecs/midimessages.php
-	localControlCCNumber  = 0x7A // Table 3: Local Control On/Off (supported by MicroBrute)
-	stepControlCCNumber   = 0x72 // Undefined by MIDI: MB uses it for Step On Clk | Gate
+	ccMessage             = 0xB0 // Chan 1 Control/Mode Change (CC message on MIDI channel 1): https://www.midi.org/specifications/item/table-2-expanded-messages-list-status-bytes
+	localControlCCNumber  = 0x7A // Local Control On/Off, according to Standard MIDI (https://www.midi.org/specifications/item/table-3-control-change-messages-data-bytes-2) and MicroBrute Connection Manual
+	stepControlCCNumber   = 0x72 // Undefined by MIDI: MicroBrute uses it for Step On Clock or Gate (MicroBrute Connection Manual)
 	localControlOnValue   = 127
 	localControlOffValue  = 0
 	stepControlGateValue  = 127
