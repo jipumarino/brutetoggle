@@ -26,7 +26,7 @@ func main() {
 	var (
 		ccValue  int64
 		ccNumber int64
-		deviceId portmidi.DeviceId = -1
+		deviceId portmidi.DeviceId
 		err      error
 	)
 
