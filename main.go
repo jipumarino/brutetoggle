@@ -30,32 +30,9 @@ func main() {
 		err      error
 	)
 
-	if len(os.Args) != 3 {
-		fmt.Println("Not enough argument provided: (local|step) (on|off|clock|gate)")
-		os.Exit(1)
-	}
-
-	switch os.Args[1] {
-	case "local":
-		ccNumber = localControlCCNumber
-	case "step":
-		ccNumber = stepControlCCNumber
-	default:
-		fmt.Println("Operation must be (local|step)")
-		os.Exit(1)
-	}
-
-	switch os.Args[2] {
-	case "on":
-		ccValue = localControlOnValue
-	case "off":
-		ccValue = localControlOffValue
-	case "clock":
-		ccValue = stepControlClockValue
-	case "gate":
-		ccValue = stepControlGateValue
-	default:
-		fmt.Println("Value must be (on|off|clock|gate)")
+	ccNumber, ccValue, err = parseArgs(os.Args)
+	if err != nil {
+		fmt.Println(err)
 		os.Exit(1)
 	}
 
@@ -80,6 +57,39 @@ func main() {
 		os.Exit(1)
 	}
 
+}
+
+func parseArgs(args []string) (ccNumber, ccValue int64, err error) {
+	if len(args) != 3 {
+		return 0, 0, fmt.Errorf("Not enough argument provided:\n%s (local|step) (on|off|clock|gate)", args)
+	}
+
+	switch args[1] {
+	case "local":
+		ccNumber = localControlCCNumber
+		switch os.Args[2] {
+		case "on":
+			ccValue = localControlOnValue
+		case "off":
+			ccValue = localControlOffValue
+		default:
+			return 0, 0, fmt.Errorf("Value for 'local' must be (on|off)")
+		}
+	case "step":
+		ccNumber = stepControlCCNumber
+		switch os.Args[2] {
+		case "clock":
+			ccValue = stepControlClockValue
+		case "gate":
+			ccValue = stepControlGateValue
+		default:
+			return 0, 0, fmt.Errorf("Value for 'step' must be (clock|gate)")
+		}
+	default:
+		fmt.Println("Operation must be (local|step)")
+	}
+
+	return
 }
 
 func getDeviceId() (portmidi.DeviceId, error) {
